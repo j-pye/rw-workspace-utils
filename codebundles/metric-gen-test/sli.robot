@@ -16,7 +16,7 @@ Pull and Push Next Metric
     ...    Fail the task when the next value is '_' and don't push a metric.
     ${payload}=    Create Dictionary    unique_name=${unique_name}    pattern=${GENERATION_PATTERN}
     ${payload_json}=    Evaluate    json.dumps(${payload})    modules=json
-    ${curl_command}=    Set Variable    curl -s -w '%{http_code}' -X POST -H "Content-Type: application/json" -d '${payload_json}' ${URL}/sequence.v1.SequenceService/NextInSequence
+    ${curl_command}=    Set Variable    curl -s -w '\%{http_code}' -X POST -H "Content-Type: application/json" -d '${payload_json}' ${URL}/sequence.v1.SequenceService/NextInSequence
     ${curl_rsp}=    RW.CLI.Run Cli    cmd=${curl_command}
     ${status_code}=    Get Last N Characters    ${curl_rsp.stdout}    3
     ${response_body}=    Remove Last Characters    ${curl_rsp.stdout}    3
