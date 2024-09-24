@@ -4,6 +4,7 @@ Metadata            Author    j-pye
 Metadata            Display Name    Metric Gen
 
 Library             BuiltIn
+Library             Collections
 Library             String
 Library             RW.Core
 Library             RW.CLI
