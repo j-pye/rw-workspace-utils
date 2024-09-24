@@ -44,6 +44,6 @@ Suite Initialization
     ...    pattern=\w*
     ...    default=1
 
-    ${RW_SLX}=    Get Environment Variable    RW_SLX
-    ${RW_LOCATION_UUID}=    Get Environment Variable    RW_LOCATION_UUID
+    ${RW_SLX}=    RW.Core.Import Platform Variable    RW_SLX
+    ${RW_LOCATION_UUID}=    RW.Core.Import Platform Variable    RW_LOCATION_UUID
     ${unique_name}=    Set Variable    ${RW_SLX}_${RW_LOCATION_UUID}
