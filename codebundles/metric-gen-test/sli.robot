@@ -23,7 +23,7 @@ Pull and Push Next Metric
     ${status_code}=    Get Substring    ${curl_rsp.stdout}    -3
     ${response_body}=    Remove String    ${curl_rsp.stdout}    ${status_code}
     Should Be Equal As Integers    ${status_code}    200    msg=${response_body}
-    ${response}=    Convert To Dictionary    ${response_body}
+    ${response}=    Evaluate    json.loads('${response_body}')    modules=json
     ${metric}=    Get From Dictionary    ${response}    metric
     IF    '${metric}' == '_'
         Fail    msg=Intentionally Failing to Indicate Skipped Metric Push
