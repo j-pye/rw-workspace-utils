@@ -43,4 +43,5 @@ Suite Initialization
 
     ${RW_SLX}=    RW.Core.Import Platform Variable    RW_SLX
     ${RW_LOCATION_UUID}=    RW.Core.Import Platform Variable    RW_LOCATION_UUID
-    ${unique_name}=    Set Suite Variable    ${RW_SLX}_${RW_LOCATION_UUID}
+    ${unique_name}=    Set Variable    ${RW_SLX}_${RW_LOCATION_UUID}
+    Set Suite Variable    ${unique_name}
