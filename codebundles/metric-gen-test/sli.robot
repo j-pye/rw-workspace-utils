@@ -4,6 +4,7 @@ Metadata            Author    j-pye
 Metadata            Display Name    Metric Gen
 
 Library             BuiltIn
+Library             String
 Library             RW.Core
 Library             RW.CLI
 Library             RW.platform
@@ -18,8 +19,8 @@ Pull and Push Next Metric
     ${payload_json}=    Evaluate    json.dumps(${payload})    modules=json
     ${curl_command}=    Set Variable    curl -s -w '\%{http_code}' -X POST -H "Content-Type: application/json" -d '${payload_json}' ${URL}/sequence.v1.SequenceService/NextInSequence
     ${curl_rsp}=    RW.CLI.Run Cli    cmd=${curl_command}
-    ${status_code}=    Get Last N Characters    ${curl_rsp.stdout}    3
-    ${response_body}=    Remove Last Characters    ${curl_rsp.stdout}    3
+    ${status_code}=    Get Substring    ${curl_rsp.stdout}    -3
+    ${response_body}=    Remove String    ${curl_rsp.stdout}    ${status_code}
     Should Be Equal As Integers    ${status_code}    200    msg=${response_body}
     ${response}=    Evaluate    json.loads(${response_body})    modules=json
     ${metric}=    Get From Dictionary    ${response}    metric
