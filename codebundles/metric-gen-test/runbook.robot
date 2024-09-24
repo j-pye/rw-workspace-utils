@@ -37,7 +37,7 @@ Suite Initialization
     ${GENERATION_PATTERN}=    RW.Core.Import User Variable
     ...    GENERATION_PATTERN
     ...    type=string
-    ...    description=Generation Notation is a Short Notation that's expanded to produce a sequence of metrics. See README.md for details.
+    ...    description=Generation Pattern is a Short Notation that's expanded to produce a sequence of metrics. See README.md for details.
     ...    pattern=\w*
     ...    default=1
 

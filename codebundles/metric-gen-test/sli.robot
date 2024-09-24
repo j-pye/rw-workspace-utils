@@ -1,5 +1,5 @@
 *** Settings ***
-Documentation       This SLI accepts a notation for generating a sequence of metrics and pushes them to the metric store at the specified interval.
+Documentation       This SLI accepts a pattern for generating a sequence of metrics and pushes them to the metric store at the specified interval.
 Metadata            Author    j-pye
 Metadata            Display Name    Metric Gen
 
@@ -14,7 +14,7 @@ Suite Setup         Suite Initialization
 Pull and Push Next Metric
     [Documentation]    Use cURL to pull the next generated metric value and push it to the metric store.
     ...    Fail the task when the next value is '_' and don't push a metric.
-    ${payload}=    Create Dictionary    unique_name=${unique_name}    pattern=${GENERATION_NOTATION}
+    ${payload}=    Create Dictionary    unique_name=${unique_name}    pattern=${GENERATION_PATTERN}
     ${payload_json}=    Evaluate    json.dumps(${payload})    modules=json
     ${curl_command}=    Set Variable    curl -s -w "%{http_code}" -X POST -H "Content-Type: application/json" -d '${payload_json}' ${URL}/sequence.v1.SequenceService/NextInSequence
     ${curl_rsp}=    RW.CLI.Run Cli    cmd=${curl_command}
@@ -40,7 +40,7 @@ Suite Initialization
     ${GENERATION_PATTERN}=    RW.Core.Import User Variable
     ...    GENERATION_PATTERN
     ...    type=string
-    ...    description=Generation Notation is a Short Notation that's expanded to produce a sequence of metrics. See README.md for details.
+    ...    description=Generation Pattern is a Short Notation that's expanded to produce a sequence of metrics. See README.md for details.
     ...    pattern=\w*
     ...    default=1
 
