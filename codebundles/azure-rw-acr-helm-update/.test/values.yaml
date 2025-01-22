@@ -18,7 +18,7 @@
 ###############################################################################
 ######################## Global/Shared Settings ###############################
 ###############################################################################
-workspaceName: "workspace-name"
+workspaceName: "b-test-shea-001"
 
 imagePullSecrets: []
 
@@ -35,7 +35,7 @@ affinity: {}
 
 # Override the container image registry used for all images
 # Note: grafana-agent is a subchart and must still be explicitly updated.
-registryOverride: ""
+registryOverride: "runwhensandboxacr.azurecr.io"
 
 # Set proxy env for RunWhen Local and Runner Deployments and any supporting infrastructure such as the grafana-agent
 proxy:
@@ -72,11 +72,15 @@ runwhenLocal:
   enabled: true
   image:
     registry: ""
-    repository: ""
+    repository: "runwhen/runwhen-local"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "latest"
-
+    tag: "20241125153650"
+    # registry: "ghcr.io"
+    # repository: "runwhen-contrib/runwhen-local"
+    # pullPolicy: Always
+    # # Overrides the image tag whose default is the chart appVersion.
+    # tag: "0.6.3"
   # Extra volumes for the runwhen-local container
   volumes: {}
 
@@ -163,7 +167,7 @@ runwhenLocal:
   discoveryKubeconfig:
     inClusterAuth:
       enabled: true
-      createKubeconfigSecret: true
+      createKubeconfigSecret: false
     secretProvided:
       enabled: false
       # secretName: kubeconfig
@@ -197,9 +201,9 @@ runwhenLocal:
   uploadInfo:
     secretProvided:
       enabled: false
-      # secretName: "uploadinfo"
-      # secretKey: uploadInfo.yaml
-      # secretPath: uploadInfo.yaml
+      secretName: "uploadinfo"
+      secretKey: uploadInfo.yaml
+      secretPath: uploadInfo.yaml
 
 
   ## workspaceInfo
@@ -210,23 +214,31 @@ runwhenLocal:
     useExistingConfigMap: false
     existingConfigMapName: ""
     configMap:
+    # This will not be used for testing as we upload only the SLXs we want. 
       create: true
       name: workspace-builder
       data:
-        defaultLocation: none
-        workspaceOwnerEmail: tester@my-company.com
-        # More workspace config
-        # Default Level of Detail(LOD): none, basic, or detailed
-        # https://docs.runwhen.com/public/v/runwhen-local/user-guide/user_guide-advanced_configuration/workspaceinfo-customization/level-of-detail
+        workspaceName: "t-shea-aks-01"
+        workspaceOwnerEmail: authors@runwhen.com
+        defaultLocation: location-01
         defaultLOD: detailed
         cloudConfig:
-          kubernetes:
-            kubeconfigFile: /shared/kubeconfig
-            namespaceLODs:
-              kube-system: 0
-              kube-public: 0
-              kube-node-lease: 0
-        codeCollections: []
+          kubernetes: 
+            inClusterAuth: false
+          azure:
+            spSecretName: azure-sp 
+            aksClusters: 
+              clusters: 
+                - name: $cluster_name
+                  server: https://$cluster_server:443
+                  resource_group: $cluster_resource_group
+                  subscriptionId: $cluster_sub
+            resourceGroupLevelOfDetails:
+              $cluster_resource_group: detailed
+        codeCollections:
+        - repoURL: "$repo_url"
+          branch: "$branch_name"
+          codeBundles: ["$codebundle"]
         custom:
           # Note: Most of these are simple keys, such as the name of a secret that
           # should be referenced from the platform. The secret itself (key and value)
@@ -235,13 +247,8 @@ runwhenLocal:
           # The default for kubeconfig_secret_name is set to a secret that runwhenLocal
           # creates for the use of the runner. This can be simply swapped out with the
           # name of a secret that is stored in the RunWhen Platform.
-          kubeconfig_secret_name: "k8s:file@secret/kubeconfig:kubeconfig"
+          # kubeconfig_secret_name: "k8s:file@secret/kubeconfig:kubeconfig"
           kubernetes_distribution_binary: kubectl
-          cloud_provider: none
-          gcp_project_id: none
-          gcp_ops_suite_sa: none
-          aws_access_key_id: AWS_ACCESS_KEY_ID
-          aws_secret_access_key: AWS_SECRET_ACCESS_KEY
 
 
 ###############################################################################
@@ -249,7 +256,7 @@ runwhenLocal:
 ###############################################################################
 
 runner:
-  enabled: false
+  enabled: true
 
   log:
     level: info
@@ -264,8 +271,8 @@ runner:
 
   image:
     registry: ""
-    repository: ""
-    tag: "latest"
+    repository: "runwhen/runner"
+    tag: "20241125152412"
   controlAddr: "https://runner.beta.runwhen.com"
   metrics:
     url: "https://runner-cortex-tenant.beta.runwhen.com/push"
@@ -293,7 +300,7 @@ runner:
     image:
       pullSecret: ""
       pullPolicy: ""
-      registry: ""
+      registry: "us-west1-docker.pkg.dev"
       repository: ""
     # volumes common for all the pods created by the runner
     volumes: {}
@@ -375,7 +382,7 @@ runner:
             memory: "64Mi"
           limits:
             cpu: "500m"
-            memory: "196Mi"
+            memory: "512Mi"
         EKS_Fargate:
           requests:
             cpu: "300m"
@@ -385,6 +392,7 @@ runner:
             memory: "196Mi"
     #### The configurations applied to the TaskSet (CodeRun) Pods ####
     pod:
+      runAsJob: false
       annotations: {}
       affinity: {}
       nodeName: ""
@@ -441,8 +449,8 @@ runner:
   pushgateway:
     image:
       registry: ""
-      repository: ""
-      tag: ""
+      repository: "runwhen/pushgateway"
+      tag: "v1.10.0"
     tolerations: []
 
 ## opentelemetry-collector is only deployed if runner.enabled is true
@@ -453,9 +461,9 @@ opentelemetry-collector:
     create: false
     existingName: "otel-collector"
   image:
-    repository: "otel/opentelemetry-collector"
+    repository: "runwhensandboxacr.azurecr.io/runwhen/opentelemetry-collector"
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "0.109.0"
   imagePullSecrets: []
   command:
     name: "otelcol"
